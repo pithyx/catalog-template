@@ -2,6 +2,8 @@
 
 This repository is the template for **app catalogs of [Pithyx](https://github.com/pithyx)**, the self-hosted NAS and server OS with a web desktop. A catalog is a Git repository that holds the source of apps and publishes them, built and signed, so that a Pithyx box can list, install and update them in its Store. The project's own catalogs, `pithyx/apps-official` and `pithyx/apps-community`, are made from this template, and anyone can use it to run a catalog of their own.
 
+Part of Pithyx by Schecher1 (https://github.com/Schecher1).
+
 Use it with **Use this template** on GitHub. Nothing in it needs a server: GitHub Actions builds the apps, the GitHub container registry holds their images, and the box reads the catalog straight from Git.
 
 ## Contents
@@ -80,9 +82,9 @@ A later version is a pull request that raises `version` in `pithyx.json`, opened
 
 | Workflow      | When                             | Rights                                       | Runs the app's code |
 | ------------- | -------------------------------- | -------------------------------------------- | ------------------- |
-| `check.yml`   | a pull request that changes `apps/` | read the repository                       | yes, to build it    |
-| `publish.yml` | a push to `master`, or by hand   | build: read only; publish: write the branch `catalog-next` and the images, the `next` key | build: yes; publish: no |
-| `promote.yml` | by hand, after the owner's approval | write the branch `catalog`, the `catalog` key | no               |
+| `check.yaml`   | a pull request that changes `apps/` | read the repository                       | yes, to build it    |
+| `publish.yaml` | a push to `master`, or by hand   | build: read only; publish: write the branch `catalog-next` and the images, the `next` key | build: yes; publish: no |
+| `promote.yaml` | by hand, after the owner's approval | write the branch `catalog`, the `catalog` key | no               |
 
 **Build and publish are separate jobs.** Building an app runs its code: `npm ci`, `npm run build` and the `RUN` steps of its Dockerfiles. That job gets no write rights and no secrets, so a malicious build step can neither push anything nor read a key. It hands the built frontend and the images as OCI archives to the publish job, which runs only the `pithyx` command: it pushes the images as `<images>/<id>/<service>:<version>`, pins `compose.yaml` and the images lock to the pushed digests, packs the app, adds it to `catalog-next`, signs the index with the `next` key and pushes the branch. A published version is never overwritten: the tag must not exist yet (or point to the same digest), and the version folder must be new.
 
@@ -90,7 +92,7 @@ Images are built reproducibly where the Dockerfile allows it: for `linux/amd64` 
 
 Pull requests from forks run only after a maintainer of this repository approves the run (Settings, Actions, "Require approval for all external contributors").
 
-`pithyx` comes from `@pithyx/cli`. **Temporary:** until `@pithyx/cli` 1.0.0-rc.5 is on npm, the workflows install it from the packages in `vendor/` (built with `npm pack` from the Pithyx repository); see `.github/actions/setup-pithyx/action.yml`. Afterwards they install the pinned version from npm and `vendor/` goes.
+`pithyx` comes from `@pithyx/cli`. **Temporary:** until `@pithyx/cli` 1.0.0-rc.5 is on npm, the workflows install it from the packages in `vendor/` (built with `npm pack` from the Pithyx repository); see `.github/actions/setup-pithyx/action.yaml`. Afterwards they install the pinned version from npm and `vendor/` goes.
 
 ## Promoting and signing
 
@@ -149,10 +151,10 @@ When the images of a private catalog are private as well, give the box a read to
 | `CONTRIBUTING.md`                     | How to submit an app and the rules a pull request must pass      |
 | `SECURITY.md`                         | Signatures, keys and how to report a problem                     |
 | `.github/pull_request_template.md`    | What a submission states and what the review checks              |
-| `.github/workflows/check.yml`         | Rules and a test build for pull requests                         |
-| `.github/workflows/build.yml`         | The build job both check and publish use, without secrets        |
-| `.github/workflows/publish.yml`       | Push images, pack and add to `catalog-next` after a merge        |
-| `.github/workflows/promote.yml`       | Move `catalog-next` to `catalog` and sign, after approval        |
+| `.github/workflows/check.yaml`         | Rules and a test build for pull requests                         |
+| `.github/workflows/build.yaml`         | The build job both check and publish use, without secrets        |
+| `.github/workflows/publish.yaml`       | Push images, pack and add to `catalog-next` after a merge        |
+| `.github/workflows/promote.yaml`       | Move `catalog-next` to `catalog` and sign, after approval        |
 | `.github/actions/setup-pithyx/`       | Installs Node.js and the `pithyx` command                        |
 | `vendor/`                             | Temporary copy of `@pithyx/cli` until it is on npm               |
 
