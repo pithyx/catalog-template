@@ -52,7 +52,6 @@ apps/<id>/                        one folder per app, named like its id
   backend/compose.dev.yaml        the backend's source form, with build: per service
   backend/<service>/Dockerfile    every FROM pinned by @sha256
 .github/                          the workflows and the pull request template
-vendor/                           temporary, see "What CI does"
 ```
 
 The branches **`catalog-next`** and **`catalog`** are written only by CI. Each holds `catalog.json` (copied from `master`), `index.json`, `index.json.sig` when the catalog signs, and per app and version a folder that never changes once published:
@@ -92,7 +91,6 @@ Images are built reproducibly where the Dockerfile allows it: for `linux/amd64` 
 
 Pull requests from forks run only after a maintainer of this repository approves the run (Settings, Actions, "Require approval for all external contributors").
 
-`pithyx` comes from `@pithyx/cli`. **Temporary:** until `@pithyx/cli` 1.0.0-rc.5 is on npm, the workflows install it from the packages in `vendor/` (built with `npm pack` from the Pithyx repository); see `.github/actions/setup-pithyx/action.yaml`. Afterwards they install the pinned version from npm and `vendor/` goes.
 
 ## Promoting and signing
 
@@ -156,6 +154,5 @@ When the images of a private catalog are private as well, give the box a read to
 | `.github/workflows/publish.yaml`       | Push images, pack and add to `catalog-next` after a merge        |
 | `.github/workflows/promote.yaml`       | Move `catalog-next` to `catalog` and sign, after approval        |
 | `.github/actions/setup-pithyx/`       | Installs Node.js and the `pithyx` command                        |
-| `vendor/`                             | Temporary copy of `@pithyx/cli` until it is on npm               |
 
 The files of this repository are under the MIT license (`LICENSE`); each app keeps its own license in its folder.
